@@ -1,0 +1,8 @@
+with discords new username changes the bot now uses the users unique username instead of their nickname...
+change the new channels name to the users nickname
+
+help command
+kick from channel command
+ban from channel command
+figure out why my / slash commands arent in the commands list
+maybe make commands /vrename /vkick /vlock /vban
