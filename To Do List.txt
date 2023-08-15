@@ -10,3 +10,6 @@ ban from channel command
 figure out why my / slash commands arent in the commands list (is this a verified bot only kind of thing?)
 
 maybe rename commands to (/vrename /vlock /vunlock /vkick /vban) to not interfer with other bots or /dxxxxx ya know for deyo
+
+react to message to recieve roles
+
