@@ -24,8 +24,8 @@ async def on_voice_state_update(member, before, after):
     if after.channel and after.channel.name == "Create Voice Channel":
 
         # Check if user has exceeded the cooldown
-        now = datetime.utcnow()
-        if member.id not in user_cooldown or now - user_cooldown[member.id] > timedelta(seconds=15):
+        now = datetime.now()
+        if member.id not in user_cooldown or now - user_cooldown[member.id] > timedelta(seconds=5):
 
             # Create a new voice channel named after the user
             guild = after.channel.guild
