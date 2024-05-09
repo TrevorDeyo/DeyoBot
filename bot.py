@@ -25,7 +25,8 @@ async def on_voice_state_update(member, before, after):
 
         # Check if user has exceeded the cooldown
         now = datetime.now()
-        if member.id not in user_cooldown or now - user_cooldown[member.id] > timedelta(seconds=5):
+        cooldown = 5
+        if member.id not in user_cooldown or now - user_cooldown[member.id] > timedelta(seconds=cooldown):
 
             # Create a new voice channel named after the user
             guild = after.channel.guild
@@ -48,7 +49,7 @@ async def on_voice_state_update(member, before, after):
             del user_cooldown[member.id]
         else:
             # Tell the user they need to wait before creating another channel
-            await member.send("You must wait 15 seconds before creating another channel.")
+            await member.send(f"You must wait {cooldown} seconds before creating another channel.")
 
     # Check if user left a voice channel
     if before.channel:
