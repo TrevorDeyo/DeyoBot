@@ -1,34 +1,37 @@
-import subprocess
+# Starting the stopwatch
+import time
+start_time = time.time()
+
+# function that prints with program execution time elasped added at the beginning
+def print_time(string):
+    global start_time
+    elasped_time = int((time.time() - start_time) * 1000)
+    print(f"{elasped_time}ms: {string}")
+
+# imports
 import os
+print_time("import os done")
+from git import Repo
+print_time("from git import Repo done")
 
-from dotenv import load_dotenv
-load_dotenv()
+# Created Repo obj
+repo = Repo(os.getcwd())
+print_time("created Repo object using os.getcwd()")
 
-# Define the SSH parameters
-ssh_host = os.getenv('ssh_host')
-ssh_user = os.getenv('ssh_user')
-ssh_pass = os.getenv('ssh_pw')
+# connect to the remote repository on github
+origin = repo.remote()
+print_time("connected to the remote repository on github")
 
-# 1. SCP the folder
-scp_cmd = f'scp -r C:/Users/tdeyo/Desktop/Code/DeyoBot {ssh_user}@{ssh_host}:/home/deyo'
-subprocess.run(scp_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
+# import datetime & drop microseconds
+import datetime
+print_time("Imported datetime & dropped microseconds")
+yyyy_mm_dd_hh_mm_ss_ms = datetime.datetime.now()
+yyyy_mm_dd_hh_mm_ss = yyyy_mm_dd_hh_mm_ss_ms.replace(microsecond=0)
 
-# 2. SSH to the server and resume screen session
-ssh_cmd = f'ssh {ssh_user}@{ssh_host} "screen -r"'
-subprocess.run(ssh_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
+# commit local changes using datename as name
+repo.index.commit(str(yyyy_mm_dd_hh_mm_ss))
+print_time("committed local changes using datename as name")
 
-# 3. Stop the bot
-ssh_cmd = 'echo "\003" > /dev/tty'
-subprocess.run(ssh_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
-
-# 4. Start the bot
-ssh_cmd = 'python3 /home/deyo/DeyoBot/bot.py'
-subprocess.run(ssh_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
-
-# 5. Detach from the screen session
-ssh_cmd = 'echo "\001d" > /dev/tty'
-subprocess.run(ssh_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
-
-# 6. Close the connection
-ssh_cmd = 'exit'
-subprocess.run(ssh_cmd, shell=True, input=f"{ssh_pass}\n", text=True)
+# push changes to github
+origin.push()
+print_time("Repository commits pushed to github")
