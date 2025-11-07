@@ -26,14 +26,17 @@ async def on_voice_state_update(member, before, after):
 
         # Create a new voice channel named after the user
         guild = after.channel.guild
-        new_channel = await guild.create_voice_channel(f"{member.name}'s channel",
-            category=after.channel.category, position=after.channel.position)
-        
-        # append created channel id to created channels list
+        new_channel = await guild.create_voice_channel(
+            f"{member.name}'s channel",
+            category=after.channel.category,
+            position=after.channel.position
+        )
+
         created_channels.append(new_channel.id)
 
-        # Move the user to the new channel
+        # Move the user into the channel
         await member.move_to(new_channel)
+
 
     # Check if user left a voice channel
     if before.channel:
