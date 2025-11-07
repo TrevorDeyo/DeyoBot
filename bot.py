@@ -67,32 +67,40 @@ async def rename(interaction: discord.Interaction, new_name: str):
 
 @tree.command(name="lock", description="Lock your temporary voice channel.")
 async def lock(interaction: discord.Interaction):
-    if interaction.user.voice and interaction.user.voice.channel:
-        if interaction.user.voice.channel.id in created_channels:
-            channel = interaction.user.voice.channel
-            perms = channel.overwrites_for(interaction.guild.default_role)
-            perms.connect = False
-            await channel.set_permissions(interaction.guild.default_role, overwrite=perms)
-            await interaction.response.send_message("Channel locked.", ephemeral=True)
-        else:
-            await interaction.response.send_message("You can only lock temporary channels.", ephemeral=True)
-    else:
-        await interaction.response.send_message("You must be in your temporary channel.", ephemeral=True)
+    channel = interaction.user.voice.channel if interaction.user.voice else None
+
+    if channel is None or channel.id not in created_channels:
+        return await interaction.response.send_message(
+            "You must be in your temporary voice channel to lock it.",
+            ephemeral=True
+        )
+
+    # Deny connect for @everyone
+    await channel.set_permissions(
+        interaction.guild.default_role,
+        connect=False
+    )
+
+    await interaction.response.send_message("🔒 Channel locked.", ephemeral=True)
 
 
 @tree.command(name="unlock", description="Unlock your temporary voice channel.")
 async def unlock(interaction: discord.Interaction):
-    if interaction.user.voice and interaction.user.voice.channel:
-        if interaction.user.voice.channel.id in created_channels:
-            channel = interaction.user.voice.channel
-            perms = channel.overwrites_for(interaction.guild.default_role)
-            perms.connect = True
-            await channel.set_permissions(interaction.guild.default_role, overwrite=perms)
-            await interaction.response.send_message("Channel unlocked.", ephemeral=True)
-        else:
-            await interaction.response.send_message("You can only unlock temporary channels.", ephemeral=True)
-    else:
-        await interaction.response.send_message("You must be in your temporary channel.", ephemeral=True)
+    channel = interaction.user.voice.channel if interaction.user.voice else None
+
+    if channel is None or channel.id not in created_channels:
+        return await interaction.response.send_message(
+            "You must be in your temporary voice channel to unlock it.",
+            ephemeral=True
+        )
+
+    # Allow connect for @everyone
+    await channel.set_permissions(
+        interaction.guild.default_role,
+        connect=True
+    )
+
+    await interaction.response.send_message("🔓 Channel unlocked.", ephemeral=True)
 
 @bot.event
 async def on_ready():
