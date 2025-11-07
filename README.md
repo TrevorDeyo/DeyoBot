@@ -50,7 +50,7 @@ python bot.py
 
 ## 🛡️ Bot Permissions
 
-Make sure the bot has the following permissions in your server:
+Make sure the bot has administrator or the following permissions in your server:
 
 - Manage Channels
 - Move Members
