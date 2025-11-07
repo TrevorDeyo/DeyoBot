@@ -15,6 +15,39 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='/', intents=intents)
 tree = bot.tree # this is the slash command handler
 
+class ChannelControls(discord.ui.View):
+    def __init__(self, channel):
+        super().__init__(timeout=None)
+        self.channel = channel
+
+    @discord.ui.button(label="Rename", style=discord.ButtonStyle.primary)
+    async def rename_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Send the new channel name:", ephemeral=True)
+
+        def check(message):
+            return message.author == interaction.user and isinstance(message.channel, discord.DMChannel)
+
+        msg = await bot.wait_for("message", check=check)
+        await self.channel.edit(name=msg.content)
+        await interaction.followup.send(f"✅ Renamed to **{msg.content}**", ephemeral=True)
+
+    @discord.ui.button(label="Lock", style=discord.ButtonStyle.danger)
+    async def lock_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.channel.set_permissions(
+            self.channel.guild.default_role,
+            connect=False
+        )
+        await interaction.response.send_message("🔒 Channel locked.", ephemeral=True)
+
+    @discord.ui.button(label="Unlock", style=discord.ButtonStyle.success)
+    async def unlock_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.channel.set_permissions(
+            self.channel.guild.default_role,
+            connect=True
+        )
+        await interaction.response.send_message("🔓 Channel unlocked.", ephemeral=True)
+
+
 created_channels = []
 
 @bot.event
@@ -23,8 +56,6 @@ async def on_voice_state_update(member, before, after):
 
     # Check if user joined the voice channel titled "Create Voice Channel"
     if after.channel and after.channel.name == "Create Voice Channel":
-
-        # Create a new voice channel named after the user
         guild = after.channel.guild
         new_channel = await guild.create_voice_channel(
             f"{member.name}'s channel",
@@ -33,10 +64,16 @@ async def on_voice_state_update(member, before, after):
         )
 
         created_channels.append(new_channel.id)
-
-        # Move the user into the channel
         await member.move_to(new_channel)
 
+        # Send control panel to the user
+        try:
+            await member.send(
+                f"🎛 **Your Voice Channel Controls**\nYou can manage **{new_channel.name}** using the buttons below:",
+                view=ChannelControls(new_channel)
+            )
+        except:
+            print("⚠️ Could not DM user (their DMs are closed).")
 
     # Check if user left a voice channel
     if before.channel:
