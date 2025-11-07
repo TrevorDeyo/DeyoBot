@@ -1,59 +1,109 @@
-# 🔊 Auto Voice Channel Creator Discord Bot
+# DeyoBot
 
-A Discord bot that automatically creates, manages, and cleans up temporary voice channels. Users can also rename, lock, and unlock their personal voice channels using slash-style commands.
+DeyoBot is a Discord moderation and utility bot designed to automatically manage temporary voice channels, log user message activity, and provide convenient user controls via an interactive UI panel. The bot is easy to configure and maintain, making it suitable both for community servers and professional development demonstration.
 
-## 📌 Features
+## Features
 
-- ✅ Auto-creates a personal voice channel when a user joins a special channel
-- 🕒 Cooldown prevents users from spamming channel creation (default: 5 seconds)
-- 🧹 Deletes the voice channel automatically when it's empty
-- ✏️ Users can rename their voice channels
-- 🔒 Voice channels can be locked or unlocked by their creator
+### Dynamic Voice Channels
+- Users who join the **Create Voice Channel** trigger channel automatically receive their own temporary voice channel.
+- Channels are deleted automatically once empty.
+- Users receive a **private control panel** (Rename / Lock / Unlock buttons).
 
-## ⚙️ Setup Instructions
+### Moderation Logging
+All logged to a private `#logs` channel:
+- Messages sent
+- Messages deleted
+- Message edits (before and after)
+- Voice channel joins, leaves, and moves
 
-**1. Install Python packages**
+### Slash Commands
+For direct and private channel management:
+```
+/rename <new_name>
+/lock
+/unlock
+```
 
-Run the following command:
+### Interactive Controls (No Commands Needed)
+Users receive DM controls to:
+- Rename their voice channel
+- Lock it from being joined
+- Unlock it for public joining
 
-pip install -U discord.py python-dotenv
+## Installation & Setup
 
-**2. Create a `.env` file**
+### Prerequisites
+- Python 3.10 or newer
+- Discord Bot Token
+- A server where you have permission to add bots
 
-In the same directory as your script, add the following:
+### 1. Clone the Repository
+```
+git clone <your repo link>
+cd DeyoBot
+```
 
-env_token=YOUR_DISCORD_BOT_TOKEN
+### 2. Create and Activate a Virtual Environment
+```
+python -m venv venv
+source venv/bin/activate   # Linux / Mac
+venv\Scripts\activate    # Windows
+```
 
-Replace `YOUR_DISCORD_BOT_TOKEN` with your actual bot token from the [Discord Developer Portal](https://discord.com/developers/applications).
+### 3. Install Dependencies
+```
+pip install -r requirements.txt
+```
 
-**3. Run the bot**
+### 4. Configure Environment Variables
+Create `.env` in the project root:
+```
+discord_token=YOUR_DISCORD_BOT_TOKEN_HERE
+```
 
-Make sure your script is saved (e.g., `bot.py`), then run:
-
+### 5. Run the Bot
+```
 python bot.py
+```
 
-## 🧪 Available Commands
+## Configuration
 
-- `/rename <new_name>` — Rename your temporary voice channel
-- `/lock` — Lock your voice channel to prevent others from joining
-- `/unlock` — Unlock your voice channel to allow others to join
+### Logging Channel
+Find your private logs channel ID:
+- Enable Developer Mode in Discord
+- Right-click `#logs` → Copy Channel ID
+Update in `bot.py`:
+```
+LOG_CHANNEL_ID = <your id>
+```
 
-> Commands only work in channels created by the bot.
+### Trigger Channel Name
+The channel that triggers creation must be named exactly:
+```
+Create Voice Channel
+```
 
-## 📋 Behavior
+## Project Structure
+```
+.
+├── bot.py          # Main bot logic
+├── .env            # Environment variables (not version controlled)
+├── requirements.txt
+├── README.md
+```
 
-- When a user joins a voice channel named `Create Voice Channel`, a new channel is created for them.
-- They are moved into the new channel automatically.
-- A 5-second cooldown prevents repeat creations.
-- The channel is deleted automatically when no one is left in it.
-- Users can control access and customize their channel via commands.
+## Future Enhancements
+- Web dashboard for logs
+- Role-based access control
+- Customizable UI themes for panel controls
+- Database-backed logging for long-term audit history
 
-## 🛡️ Bot Permissions
+## License
+This project is free to use and modify for personal or professional purposes.
 
-Make sure the bot has administrator or the following permissions in your server:
-
-- Manage Channels
-- Move Members
-- Connect
-- Speak
-- View Channel
+---
+If you use this in your resume, portfolio, or interview — ensure you can explain:
+- Handling Discord event lifecycles
+- UI interaction callbacks
+- Permission overwrites in voice channels
+- Separation of moderation logging from user-facing functionality
