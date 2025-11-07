@@ -92,18 +92,7 @@ Create Voice Channel
 ├── README.md
 ```
 
-## Future Enhancements
-- Web dashboard for logs
-- Role-based access control
-- Customizable UI themes for panel controls
-- Database-backed logging for long-term audit history
-
 ## License
 This project is free to use and modify for personal or professional purposes.
 
 ---
-If you use this in your resume, portfolio, or interview — ensure you can explain:
-- Handling Discord event lifecycles
-- UI interaction callbacks
-- Permission overwrites in voice channels
-- Separation of moderation logging from user-facing functionality
